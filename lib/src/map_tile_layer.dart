@@ -1,7 +1,7 @@
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
-import 'package:http_cache_file_store/http_cache_file_store.dart';
 
 import 'map_tile_type.dart';
 import 'tile_cache_manager.dart';
@@ -77,9 +77,11 @@ class MapTileLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final darkMode = isDarkMode ?? Theme.of(context).brightness == Brightness.dark;
+    final darkMode =
+        isDarkMode ?? Theme.of(context).brightness == Brightness.dark;
     final lang = languageCode ?? Localizations.localeOf(context).languageCode;
-    final country = countryCode ?? Localizations.localeOf(context).countryCode ?? 'US';
+    final country =
+        countryCode ?? Localizations.localeOf(context).countryCode ?? 'US';
     final packageName = userAgentPackageName ?? 'flutter_map_tile_switcher';
 
     // Check widget cache
@@ -88,7 +90,8 @@ class MapTileLayer extends StatelessWidget {
       return MapTileLayerCache.get(cacheKey) as Widget;
     }
 
-    final widget = _buildFutureLayer(darkMode, lang, country, packageName, cacheKey);
+    final widget =
+        _buildFutureLayer(darkMode, lang, country, packageName, cacheKey);
     MapTileLayerCache.set(cacheKey, widget);
     return widget;
   }
@@ -100,7 +103,7 @@ class MapTileLayer extends StatelessWidget {
     String packageName,
     String cacheKey,
   ) {
-    return FutureBuilder<FileCacheStore>(
+    return FutureBuilder<CacheStore>(
       future: TileCacheManager.initCacheStore(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -131,7 +134,7 @@ class MapTileLayer extends StatelessWidget {
     required String lang,
     required String country,
     required String packageName,
-    required FileCacheStore? cacheStore,
+    required CacheStore? cacheStore,
   }) {
     TileLayer tileLayer;
 
@@ -178,10 +181,26 @@ class MapTileLayer extends StatelessWidget {
           return RepaintBoundary(
             child: ColorFiltered(
               colorFilter: const ColorFilter.matrix(<double>[
-                -0.2, -0.5, -0.3, 0, 255,
-                -0.3, -0.5, -0.2, 0, 255,
-                -0.3, -0.2, -0.5, 0, 255,
-                 0,    0,    0,   1,   0,
+                -0.2,
+                -0.5,
+                -0.3,
+                0,
+                255,
+                -0.3,
+                -0.5,
+                -0.2,
+                0,
+                255,
+                -0.3,
+                -0.2,
+                -0.5,
+                0,
+                255,
+                0,
+                0,
+                0,
+                1,
+                0,
               ]),
               child: tileLayer,
             ),

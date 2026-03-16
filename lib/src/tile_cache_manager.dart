@@ -13,7 +13,7 @@ import 'package:path_provider/path_provider.dart';
 class TileCacheManager {
   TileCacheManager._();
 
-  static Future<FileCacheStore>? _cacheStoreFuture;
+  static Future<CacheStore>? _cacheStoreFuture;
 
   /// Default cache duration (30 days).
   static const Duration defaultCacheMaxAge = Duration(days: 30);
@@ -36,20 +36,16 @@ class TileCacheManager {
   }
 
   /// Initialize or return the shared cache store.
-  static Future<FileCacheStore> initCacheStore() async {
+  static Future<CacheStore> initCacheStore() async {
     _cacheStoreFuture ??= _createCacheStore();
     return _cacheStoreFuture!;
   }
 
-  static Future<FileCacheStore> _createCacheStore() async {
+  static Future<CacheStore> _createCacheStore() async {
     final dir = await getTemporaryDirectory();
-    final cacheOptions = CacheOptions(
-      store: FileCacheStore('${dir.path}${Platform.pathSeparator}MapTiles'),
-      policy: CachePolicy.forceCache,
-      maxStale: _cacheMaxAge,
-      priority: CachePriority.high,
-    );
-    return cacheOptions.store as FileCacheStore;
+    final store =
+        FileCacheStore('${dir.path}${Platform.pathSeparator}MapTiles');
+    return store;
   }
 
   /// Clears all cached map tiles and resets the internal widget cache.

@@ -1,3 +1,9 @@
+## 0.0.2
+
+* Fixed dependency compatibility: use CacheStore base type for broader version support
+* Added pub.dev topics for better discoverability
+* Improved compatibility with lower-bound dependency versions
+
 ## 0.0.1
 
 * Initial release
