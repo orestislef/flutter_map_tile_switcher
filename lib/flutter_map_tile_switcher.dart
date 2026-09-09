@@ -17,7 +17,7 @@
 /// ## Features
 /// - 3 built-in map providers: OpenStreetMap, Google Maps, Satellite
 /// - Automatic dark mode detection and tile theming
-/// - Built-in disk caching (default 30 days)
+/// - Built-in caching (default 30 days), on disk natively and in memory on web
 /// - Locale-aware map labels
 /// - Optional CARTO API key for unwatermarked OSM tiles
 ///

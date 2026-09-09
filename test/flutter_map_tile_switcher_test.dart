@@ -48,6 +48,12 @@ void main() {
       // Reset
       TileCacheManager.setCacheMaxAge(original);
     });
+
+    test('uses the disk store off the web', () {
+      // These tests run on the VM, so the io branch of the conditional
+      // import is the one that got compiled in.
+      expect(TileCacheManager.isInMemory, isFalse);
+    });
   });
 
   group('MapTileLayer.resolveApiKey', () {

@@ -1,3 +1,21 @@
+## 0.0.4
+
+Web works now. The README always claimed it did, but `tile_cache_manager.dart`
+imported `dart:io`, so pub.dev correctly refused to tag the package as
+web compatible.
+
+* Tile store is now picked with a conditional import. Disk (`FileCacheStore`)
+  on mobile and desktop, memory (`MemCacheStore`, 32 MB LRU) on web
+* New `TileCacheManager.isInMemory`, true on web, false everywhere else
+* Fix: `setCacheMaxAge` did nothing. The duration was tracked but never passed
+  to the tile provider, so tiles only expired when the server said so. It is
+  now wired through as `maxStale`, which means the documented 30 day default
+  actually applies
+* Verified with a real `flutter build web --release`, wasm dry run passes too
+
+Nothing to change on your side. If you were relying on tiles never expiring,
+call `TileCacheManager.setCacheMaxAge()` with a longer duration.
+
 ## 0.0.3
 
 Not a breaking change, but worth doing: CARTO started requiring an API key on

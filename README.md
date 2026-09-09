@@ -46,11 +46,11 @@ await TileCacheManager.clearCache();
   - OSM: Switches between CartoDB light/dark themes
   - Google Maps: Applies a color matrix filter for a proper dark appearance
   - Satellite: No change needed (it's satellite imagery)
-- **Built-in disk caching**: Tiles are cached for 30 days by default (configurable)
+- **Built-in caching**: Tiles are cached for 30 days by default (configurable). Disk on mobile and desktop, memory on web
 - **Widget caching**: Previously built tile layers are cached in memory to avoid rebuilds
 - **Locale-aware**: Google Maps tiles automatically use your app's locale for labels
 - **Optional API key**: Drop in a CARTO key for clean, unwatermarked OSM tiles
-- **Cross-platform**: Works on Android, iOS, Web, macOS, Windows, Linux
+- **Cross-platform**: Android, iOS, Web, macOS, Windows, Linux
 
 ## Getting Started
 
@@ -58,7 +58,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_map_tile_switcher: ^0.0.3
+  flutter_map_tile_switcher: ^0.0.4
 ```
 
 ## Usage
@@ -184,7 +184,22 @@ await TileCacheManager.clearCache();
 
 // Check current cache max age
 final maxAge = TileCacheManager.cacheMaxAge;
+
+// true on web, false everywhere else
+final inMemory = TileCacheManager.isInMemory;
 ```
+
+Where tiles actually land depends on the platform:
+
+| Platform | Store | Survives a restart |
+|----------|-------|--------------------|
+| Android, iOS, Windows, macOS, Linux | Disk, in a `MapTiles` folder under the temp directory | Yes |
+| Web | Memory, 32 MB LRU for the lifetime of the tab | No |
+
+There is no temp directory to write to in a browser, so web falls back to an
+in-memory store. Panning back over ground you have already seen stays instant,
+but a page reload starts cold. The browser's own HTTP cache still works on top
+of that.
 
 ### Persisting Map Type Selection
 

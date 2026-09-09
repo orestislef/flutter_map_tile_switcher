@@ -24,8 +24,8 @@ import 'tile_cache_manager.dart';
 /// - **3 map providers**: OpenStreetMap (CartoDB), Google Maps, Satellite (ArcGIS)
 /// - **Automatic dark mode**: Detects theme brightness and applies appropriate
 ///   tile styles or color filters
-/// - **Built-in caching**: Tiles are cached to disk with a configurable max age
-///   (default 30 days)
+/// - **Built-in caching**: Tiles are cached with a configurable max age
+///   (default 30 days), to disk on mobile and desktop, in memory on web
 /// - **Widget caching**: Previously built tile layers are cached in memory to
 ///   avoid unnecessary rebuilds
 /// - **Locale-aware**: Google Maps tiles use the device locale for labels
@@ -199,6 +199,18 @@ class MapTileLayer extends StatelessWidget {
     );
   }
 
+  /// Wraps the cache store in a tile provider, honouring
+  /// [TileCacheManager.cacheMaxAge]. Returns `null` when the store failed to
+  /// initialize, which makes flutter_map fall back to uncached tiles.
+  TileProvider? _tileProvider(CacheStore? cacheStore) {
+    if (cacheStore == null) return null;
+    return CachedTileProvider(
+      store: cacheStore,
+      cachePolicy: CachePolicy.forceCache,
+      maxStale: TileCacheManager.cacheMaxAge,
+    );
+  }
+
   Widget _buildTileLayer({
     required bool darkMode,
     required String lang,
@@ -217,12 +229,7 @@ class MapTileLayer extends StatelessWidget {
           subdomains: const ['a', 'b', 'c', 'd'],
           additionalOptions: options,
           userAgentPackageName: packageName,
-          tileProvider: cacheStore != null
-              ? CachedTileProvider(
-                  store: cacheStore,
-                  cachePolicy: CachePolicy.forceCache,
-                )
-              : null,
+          tileProvider: _tileProvider(cacheStore),
           keepBuffer: keepBuffer,
         );
         break;
@@ -237,12 +244,7 @@ class MapTileLayer extends StatelessWidget {
             'hl': lang,
             'gl': country,
           },
-          tileProvider: cacheStore != null
-              ? CachedTileProvider(
-                  store: cacheStore,
-                  cachePolicy: CachePolicy.forceCache,
-                )
-              : null,
+          tileProvider: _tileProvider(cacheStore),
           keepBuffer: keepBuffer,
         );
         if (darkMode) {
@@ -280,12 +282,7 @@ class MapTileLayer extends StatelessWidget {
         tileLayer = TileLayer(
           urlTemplate:
               'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          tileProvider: cacheStore != null
-              ? CachedTileProvider(
-                  store: cacheStore,
-                  cachePolicy: CachePolicy.forceCache,
-                )
-              : null,
+          tileProvider: _tileProvider(cacheStore),
           keepBuffer: keepBuffer,
         );
         break;
