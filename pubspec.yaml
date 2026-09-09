@@ -1,6 +1,6 @@
 name: flutter_map_tile_switcher
 description: A flutter_map plugin for easy switching between map tile providers (OpenStreetMap, Google Maps, Satellite) with built-in caching and automatic dark mode support.
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/orestislef/flutter_map_tile_switcher
 repository: https://github.com/orestislef/flutter_map_tile_switcher
 issue_tracker: https://github.com/orestislef/flutter_map_tile_switcher/issues

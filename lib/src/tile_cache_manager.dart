@@ -1,15 +1,16 @@
-import 'dart:io';
-
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http_cache_file_store/http_cache_file_store.dart';
-import 'package:path_provider/path_provider.dart';
+
+import 'tile_store_io.dart' if (dart.library.js_interop) 'tile_store_web.dart';
 
 /// Manages the tile cache store used by [MapTileLayer].
 ///
 /// Provides static methods to initialize, access, and clear the tile cache.
-/// The cache is stored in the system's temporary directory under a `MapTiles`
-/// subdirectory.
+///
+/// On Android, iOS, Windows, macOS and Linux the cache is stored in the
+/// system's temporary directory under a `MapTiles` subdirectory. On web there
+/// is no temp directory, so tiles are cached in memory for the lifetime of the
+/// tab instead. Check [isInMemory] if you need to know which one you got.
 class TileCacheManager {
   TileCacheManager._();
 
@@ -24,6 +25,12 @@ class TileCacheManager {
   /// Get the current cache max age.
   static Duration get cacheMaxAge => _cacheMaxAge;
 
+  /// Whether tiles are cached in memory rather than on disk.
+  ///
+  /// `true` on web, `false` everywhere else. In memory caches do not survive
+  /// a page reload.
+  static bool get isInMemory => tileStoreIsInMemory;
+
   /// Set a custom cache max age. Call this before building any [MapTileLayer].
   ///
   /// If the cache store has already been initialized, it will be
@@ -37,15 +44,8 @@ class TileCacheManager {
 
   /// Initialize or return the shared cache store.
   static Future<CacheStore> initCacheStore() async {
-    _cacheStoreFuture ??= _createCacheStore();
+    _cacheStoreFuture ??= createTileStore();
     return _cacheStoreFuture!;
-  }
-
-  static Future<CacheStore> _createCacheStore() async {
-    final dir = await getTemporaryDirectory();
-    final store =
-        FileCacheStore('${dir.path}${Platform.pathSeparator}MapTiles');
-    return store;
   }
 
   /// Clears all cached map tiles and resets the internal widget cache.
