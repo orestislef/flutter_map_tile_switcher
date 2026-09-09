@@ -2,16 +2,54 @@
 
 A [flutter_map](https://pub.dev/packages/flutter_map) plugin that makes it dead simple to switch between map tile providers with **built-in caching** and **automatic dark mode** support.
 
+## Heads up: OSM tiles now want a CARTO API key
+
+Since late August 2026 CARTO requires an API key on `basemaps.cartocdn.com`. Nothing is blocked, tiles still load, but without a key they come back with an **"API KEY REQUIRED"** watermark baked into the image.
+
+This is not a breaking change, `MapTileType.osm` keeps working exactly as before. It is a good-to-add though, and it takes about a minute:
+
+1. Get a free key at [carto.com/basemaps/apikey](https://carto.com/basemaps/apikey). No CARTO account needed.
+2. Pass it to the layer:
+
+```dart
+MapTileLayer(
+  mapType: MapTileType.osm,
+  apiKey: 'YOUR_CARTO_KEY',
+)
+```
+
+Or set it once at app startup and forget about it:
+
+```dart
+void main() {
+  MapTileLayer.defaultApiKey = const String.fromEnvironment('CARTO_API_KEY');
+  runApp(const MyApp());
+}
+```
+
+```bash
+flutter run --dart-define=CARTO_API_KEY=your_key_here
+```
+
+Free tier is 5 million tile requests per calendar month. Google and Satellite tiles are unaffected and ignore `apiKey`.
+
+If you already have watermarked tiles sitting in the disk cache, clear them once after adding the key:
+
+```dart
+await TileCacheManager.clearCache();
+```
+
 ## Features
 
 - **3 map providers out of the box**: OpenStreetMap (CartoDB), Google Maps, Satellite (ArcGIS)
 - **Automatic dark mode**: Detects your app's theme and applies the appropriate tile style
   - OSM: Switches between CartoDB light/dark themes
   - Google Maps: Applies a color matrix filter for a proper dark appearance
-  - Satellite: No change needed (it's satellite imagery!)
+  - Satellite: No change needed (it's satellite imagery)
 - **Built-in disk caching**: Tiles are cached for 30 days by default (configurable)
 - **Widget caching**: Previously built tile layers are cached in memory to avoid rebuilds
 - **Locale-aware**: Google Maps tiles automatically use your app's locale for labels
+- **Optional API key**: Drop in a CARTO key for clean, unwatermarked OSM tiles
 - **Cross-platform**: Works on Android, iOS, Web, macOS, Windows, Linux
 
 ## Getting Started
@@ -20,7 +58,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_map_tile_switcher: ^0.0.1
+  flutter_map_tile_switcher: ^0.0.3
 ```
 
 ## Usage
@@ -94,9 +132,23 @@ class _MapScreenState extends State<MapScreen> {
 }
 ```
 
+### API Key
+
+`apiKey` is optional and only used by `MapTileType.osm`. Per-layer value wins, otherwise it falls back to `MapTileLayer.defaultApiKey`. An empty string counts as no key, so a missing `--dart-define` will not break anything, you just get the watermark back.
+
+```dart
+// Per layer
+MapTileLayer(mapType: MapTileType.osm, apiKey: 'YOUR_CARTO_KEY')
+
+// Global default, set once in main()
+MapTileLayer.defaultApiKey = 'YOUR_CARTO_KEY';
+```
+
+Do not hardcode the key in source you push to a public repo. Use `--dart-define` or pull it from your remote config.
+
 ### Dark Mode
 
-Dark mode is **automatic** — it reads your app's `ThemeData` brightness. You can also force it:
+Dark mode is **automatic**, it reads your app's `ThemeData` brightness. You can also force it:
 
 ```dart
 // Auto-detect from theme (default)
@@ -157,6 +209,7 @@ final mapType = MapTileType.fromId(savedId);
 | `languageCode` | `String?` | `null` (auto) | Language for map labels (Google Maps) |
 | `countryCode` | `String?` | `null` (auto) | Country for region bias (Google Maps) |
 | `userAgentPackageName` | `String?` | `'flutter_map_tile_switcher'` | User-Agent for tile requests |
+| `apiKey` | `String?` | `null` (falls back to `MapTileLayer.defaultApiKey`) | CARTO API key, removes the watermark on OSM tiles |
 | `keepBuffer` | `int` | `5` | Tile buffer size around visible area |
 
 ## License

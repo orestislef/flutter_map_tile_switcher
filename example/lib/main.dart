@@ -3,7 +3,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_tile_switcher/flutter_map_tile_switcher.dart';
 import 'package:latlong2/latlong.dart';
 
-void main() => runApp(const MyApp());
+/// Optional CARTO API key. Without it the OSM tiles come back with an
+/// "API KEY REQUIRED" watermark. Free key: https://carto.com/basemaps/apikey
+///
+/// Run with:
+///   flutter run --dart-define=CARTO_API_KEY=your_key_here
+const cartoApiKey = String.fromEnvironment('CARTO_API_KEY');
+
+void main() {
+  // Empty string is treated as "no key", so this is safe to leave in.
+  MapTileLayer.defaultApiKey = cartoApiKey;
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

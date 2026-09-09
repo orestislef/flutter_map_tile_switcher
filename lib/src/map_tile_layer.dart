@@ -29,7 +29,23 @@ import 'tile_cache_manager.dart';
 /// - **Widget caching**: Previously built tile layers are cached in memory to
 ///   avoid unnecessary rebuilds
 /// - **Locale-aware**: Google Maps tiles use the device locale for labels
+/// - **Optional API key**: Pass a CARTO API key to get unwatermarked OSM tiles
 class MapTileLayer extends StatelessWidget {
+  /// Fallback API key used when [apiKey] is not passed to the constructor.
+  ///
+  /// Set it once during app startup so you do not have to repeat the key at
+  /// every call site:
+  ///
+  /// ```dart
+  /// void main() {
+  ///   MapTileLayer.defaultApiKey = const String.fromEnvironment('CARTO_API_KEY');
+  ///   runApp(const MyApp());
+  /// }
+  /// ```
+  ///
+  /// Prefer `--dart-define` or remote config over hardcoding the key in source.
+  static String? defaultApiKey;
+
   /// The map tile provider to use.
   final MapTileType mapType;
 
@@ -56,6 +72,23 @@ class MapTileLayer extends StatelessWidget {
   /// Recommended to set this to your app's package name.
   final String? userAgentPackageName;
 
+  /// Optional CARTO API key for [MapTileType.osm] tiles.
+  ///
+  /// Not required. Since late August 2026 CARTO still serves the basemaps
+  /// without a key, but the tiles come back with an "API KEY REQUIRED"
+  /// watermark burned in. Grab a free key at
+  /// https://carto.com/basemaps/apikey and pass it here to get clean tiles.
+  /// Free up to 5 million tile requests per calendar month.
+  ///
+  /// The key is appended to the tile URL as `key`.
+  ///
+  /// Falls back to [defaultApiKey] when `null`. An empty string is treated the
+  /// same as `null`, so the layer keeps working without a key.
+  ///
+  /// [MapTileType.google] and [MapTileType.satellite] ignore this value, they
+  /// use endpoints that take no key.
+  final String? apiKey;
+
   /// Number of tiles to keep in the buffer around the visible area.
   /// Higher values use more memory but reduce flashing when panning.
   /// Defaults to `5`.
@@ -72,8 +105,40 @@ class MapTileLayer extends StatelessWidget {
     this.languageCode,
     this.countryCode,
     this.userAgentPackageName,
+    this.apiKey,
     this.keepBuffer = 5,
   });
+
+  /// Resolves the key to actually use: the one passed to the constructor,
+  /// then [defaultApiKey], then nothing. An empty string counts as nothing so
+  /// a missing `--dart-define` falls back to the keyless url instead of
+  /// sending `key=` with no value.
+  @visibleForTesting
+  static String? resolveApiKey(String? apiKey) {
+    final key = apiKey ?? defaultApiKey;
+    return (key != null && key.isNotEmpty) ? key : null;
+  }
+
+  /// Builds the CARTO url template and its placeholder values for
+  /// [MapTileType.osm]. [apiKey] must already be normalized by
+  /// [resolveApiKey]. With no key this returns the exact url the layer used
+  /// before API keys were supported.
+  @visibleForTesting
+  static (String, Map<String, String>) osmTileUrl({
+    required bool darkMode,
+    required String? apiKey,
+  }) {
+    const base =
+        'https://{s}.basemaps.cartocdn.com/{style}/{z}/{x}/{y}{scale}.png';
+    return (
+      apiKey == null ? base : '$base?key={apiKey}',
+      {
+        'style': darkMode ? 'dark_all' : 'light_all',
+        'scale': '@2x',
+        if (apiKey != null) 'apiKey': apiKey,
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,14 +149,17 @@ class MapTileLayer extends StatelessWidget {
         countryCode ?? Localizations.localeOf(context).countryCode ?? 'US';
     final packageName = userAgentPackageName ?? 'flutter_map_tile_switcher';
 
-    // Check widget cache
-    final cacheKey = '${mapType}_${darkMode}_${lang}_$country';
+    final key = resolveApiKey(apiKey);
+
+    // Check widget cache. Only the hash of the key goes into the cache key so
+    // the key itself cannot leak through debug output.
+    final cacheKey =
+        '${mapType}_${darkMode}_${lang}_${country}_${key?.hashCode ?? 0}';
     if (MapTileLayerCache.has(cacheKey)) {
       return MapTileLayerCache.get(cacheKey) as Widget;
     }
 
-    final widget =
-        _buildFutureLayer(darkMode, lang, country, packageName, cacheKey);
+    final widget = _buildFutureLayer(darkMode, lang, country, packageName, key);
     MapTileLayerCache.set(cacheKey, widget);
     return widget;
   }
@@ -101,7 +169,7 @@ class MapTileLayer extends StatelessWidget {
     String lang,
     String country,
     String packageName,
-    String cacheKey,
+    String? key,
   ) {
     return FutureBuilder<CacheStore>(
       future: TileCacheManager.initCacheStore(),
@@ -115,6 +183,7 @@ class MapTileLayer extends StatelessWidget {
             lang: lang,
             country: country,
             packageName: packageName,
+            key: key,
             cacheStore: null,
           );
         }
@@ -123,6 +192,7 @@ class MapTileLayer extends StatelessWidget {
           lang: lang,
           country: country,
           packageName: packageName,
+          key: key,
           cacheStore: snapshot.data!,
         );
       },
@@ -134,20 +204,18 @@ class MapTileLayer extends StatelessWidget {
     required String lang,
     required String country,
     required String packageName,
+    required String? key,
     required CacheStore? cacheStore,
   }) {
     TileLayer tileLayer;
 
     switch (mapType) {
       case MapTileType.osm:
+        final (url, options) = osmTileUrl(darkMode: darkMode, apiKey: key);
         tileLayer = TileLayer(
-          urlTemplate:
-              'https://{s}.basemaps.cartocdn.com/{style}/{z}/{x}/{y}{scale}.png',
+          urlTemplate: url,
           subdomains: const ['a', 'b', 'c', 'd'],
-          additionalOptions: {
-            'style': darkMode ? 'dark_all' : 'light_all',
-            'scale': '@2x',
-          },
+          additionalOptions: options,
           userAgentPackageName: packageName,
           tileProvider: cacheStore != null
               ? CachedTileProvider(
