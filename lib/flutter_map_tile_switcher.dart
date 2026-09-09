@@ -19,6 +19,19 @@
 /// - Automatic dark mode detection and tile theming
 /// - Built-in disk caching (default 30 days)
 /// - Locale-aware map labels
+/// - Optional CARTO API key for unwatermarked OSM tiles
+///
+/// ## CARTO API key
+///
+/// CARTO now watermarks `basemaps.cartocdn.com` tiles served without a key.
+/// Grab a free one at https://carto.com/basemaps/apikey and pass it in:
+///
+/// ```dart
+/// MapTileLayer(mapType: MapTileType.osm, apiKey: 'YOUR_CARTO_KEY');
+///
+/// // or set it once in main()
+/// MapTileLayer.defaultApiKey = 'YOUR_CARTO_KEY';
+/// ```
 library;
 
 export 'src/map_tile_type.dart';
