@@ -1,3 +1,12 @@
+## 0.0.5
+
+* Fix: two `MapTileLayer`s with the same map type, theme and language shared
+  one cached widget even when their `keepBuffer` or `userAgentPackageName`
+  differed, so the second one quietly got the first one's settings. Both are
+  now part of the widget cache key (`MapTileLayer.cacheKeyFor`)
+
+Nothing to change on your side.
+
 ## 0.0.4
 
 Web works now. The README always claimed it did, but `tile_cache_manager.dart`
