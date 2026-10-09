@@ -120,8 +120,43 @@ void main() {
           .map((m) => m.group(1)!)
           .where((p) => !providedByFlutterMap.contains(p));
       for (final p in placeholders) {
-        expect(options.containsKey(p), isTrue, reason: 'missing value for {$p}');
+        expect(options.containsKey(p), isTrue,
+            reason: 'missing value for {$p}');
       }
+    });
+  });
+
+  group('MapTileLayer.cacheKeyFor', () {
+    String keyFor({
+      int keepBuffer = 5,
+      String packageName = 'app',
+      String? apiKey,
+    }) =>
+        MapTileLayer.cacheKeyFor(
+          mapType: MapTileType.google,
+          darkMode: false,
+          lang: 'el',
+          country: 'GR',
+          packageName: packageName,
+          keepBuffer: keepBuffer,
+          apiKey: apiKey,
+        );
+
+    test('the same settings share a cached widget', () {
+      expect(keyFor(), keyFor());
+    });
+
+    test('a different keepBuffer gets its own widget', () {
+      expect(keyFor(keepBuffer: 2), isNot(keyFor(keepBuffer: 5)));
+    });
+
+    test('a different user agent gets its own widget', () {
+      expect(keyFor(packageName: 'a'), isNot(keyFor(packageName: 'b')));
+    });
+
+    test('the api key itself never appears in the cache key', () {
+      expect(keyFor(apiKey: 'secret-key-123'), isNot(contains('secret')));
+      expect(keyFor(apiKey: 'one'), isNot(keyFor(apiKey: 'two')));
     });
   });
 }

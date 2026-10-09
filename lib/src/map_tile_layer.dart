@@ -140,6 +140,24 @@ class MapTileLayer extends StatelessWidget {
     );
   }
 
+  /// The widget cache key of a layer built with these settings. Every
+  /// setting that ends up in the built `TileLayer` is part of it, so two
+  /// layers only share a cached widget when they would build the same one.
+  /// Only the hash of [apiKey] goes in, so the key itself cannot leak through
+  /// debug output.
+  @visibleForTesting
+  static String cacheKeyFor({
+    required MapTileType mapType,
+    required bool darkMode,
+    required String lang,
+    required String country,
+    required String packageName,
+    required int keepBuffer,
+    required String? apiKey,
+  }) =>
+      '${mapType}_${darkMode}_${lang}_${country}_${packageName}_'
+      '${keepBuffer}_${apiKey?.hashCode ?? 0}';
+
   @override
   Widget build(BuildContext context) {
     final darkMode =
@@ -151,10 +169,15 @@ class MapTileLayer extends StatelessWidget {
 
     final key = resolveApiKey(apiKey);
 
-    // Check widget cache. Only the hash of the key goes into the cache key so
-    // the key itself cannot leak through debug output.
-    final cacheKey =
-        '${mapType}_${darkMode}_${lang}_${country}_${key?.hashCode ?? 0}';
+    final cacheKey = cacheKeyFor(
+      mapType: mapType,
+      darkMode: darkMode,
+      lang: lang,
+      country: country,
+      packageName: packageName,
+      keepBuffer: keepBuffer,
+      apiKey: key,
+    );
     if (MapTileLayerCache.has(cacheKey)) {
       return MapTileLayerCache.get(cacheKey) as Widget;
     }
