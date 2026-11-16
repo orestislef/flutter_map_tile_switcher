@@ -58,7 +58,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_map_tile_switcher: ^0.0.5
+  flutter_map_tile_switcher: ^0.0.6
 ```
 
 ## Usage

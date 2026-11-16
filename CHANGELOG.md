@@ -1,3 +1,9 @@
+## 0.0.6
+
+* License holder name updated
+
+Nothing to change on your side.
+
 ## 0.0.5
 
 * Fix: two `MapTileLayer`s with the same map type, theme and language shared
