@@ -17,7 +17,5 @@ const int _maxEntrySize = 2 * 1024 * 1024;
 /// Tiles live in an LRU map for the lifetime of the tab, so panning back over
 /// ground you have already seen stays instant, but a page reload starts cold.
 /// The browser's own HTTP cache still works on top of this.
-Future<CacheStore> createTileStore() async => MemCacheStore(
-      maxSize: _maxSize,
-      maxEntrySize: _maxEntrySize,
-    );
+Future<CacheStore> createTileStore() async =>
+    MemCacheStore(maxSize: _maxSize, maxEntrySize: _maxEntrySize);

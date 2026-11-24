@@ -86,9 +86,7 @@ class _MapScreenState extends State<MapScreen> {
           initialCenter: const LatLng(37.9838, 23.7275), // Athens, Greece
           initialZoom: 13,
         ),
-        children: [
-          MapTileLayer(mapType: _currentType),
-        ],
+        children: [MapTileLayer(mapType: _currentType)],
       ),
     );
   }

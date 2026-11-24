@@ -105,8 +105,9 @@ void main() {
       expect(built.layer.additionalOptions['style'], 'light_all');
     });
 
-    testWidgets('a dark ThemeData puts the dark filter on Google tiles',
-        (tester) async {
+    testWidgets('a dark ThemeData puts the dark filter on Google tiles', (
+      tester,
+    ) async {
       final built = await _build(
         tester,
         dark,
@@ -115,8 +116,9 @@ void main() {
       expect(built.darkFilter, isTrue);
     });
 
-    testWidgets('a light ThemeData leaves Google tiles as they are',
-        (tester) async {
+    testWidgets('a light ThemeData leaves Google tiles as they are', (
+      tester,
+    ) async {
       final built = await _build(
         tester,
         light,

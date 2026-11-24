@@ -35,10 +35,7 @@ void main() {
 
   group('TileCacheManager', () {
     test('default cache max age is 30 days', () {
-      expect(
-        TileCacheManager.defaultCacheMaxAge,
-        const Duration(days: 30),
-      );
+      expect(TileCacheManager.defaultCacheMaxAge, const Duration(days: 30));
     });
 
     test('setCacheMaxAge updates cache duration', () {
@@ -89,8 +86,10 @@ void main() {
 
   group('MapTileLayer.osmTileUrl', () {
     test('without a key the url is unchanged', () {
-      final (url, options) =
-          MapTileLayer.osmTileUrl(darkMode: false, apiKey: null);
+      final (url, options) = MapTileLayer.osmTileUrl(
+        darkMode: false,
+        apiKey: null,
+      );
       expect(url, _keylessOsmUrl);
       expect(options.containsKey('apiKey'), isFalse);
       expect(options['style'], 'light_all');
@@ -98,21 +97,27 @@ void main() {
     });
 
     test('with a key the url gets the key placeholder', () {
-      final (url, options) =
-          MapTileLayer.osmTileUrl(darkMode: false, apiKey: 'abc123');
+      final (url, options) = MapTileLayer.osmTileUrl(
+        darkMode: false,
+        apiKey: 'abc123',
+      );
       expect(url, '$_keylessOsmUrl?key={apiKey}');
       expect(options['apiKey'], 'abc123');
     });
 
     test('dark mode still picks the dark style', () {
-      final (_, options) =
-          MapTileLayer.osmTileUrl(darkMode: true, apiKey: 'abc123');
+      final (_, options) = MapTileLayer.osmTileUrl(
+        darkMode: true,
+        apiKey: 'abc123',
+      );
       expect(options['style'], 'dark_all');
     });
 
     test('every placeholder in the url has a value', () {
-      final (url, options) =
-          MapTileLayer.osmTileUrl(darkMode: false, apiKey: 'abc123');
+      final (url, options) = MapTileLayer.osmTileUrl(
+        darkMode: false,
+        apiKey: 'abc123',
+      );
       // {s}, {z}, {x}, {y} are filled in by flutter_map itself.
       const providedByFlutterMap = {'s', 'z', 'x', 'y'};
       final placeholders = RegExp(r'\{(\w+)\}')
@@ -120,8 +125,11 @@ void main() {
           .map((m) => m.group(1)!)
           .where((p) => !providedByFlutterMap.contains(p));
       for (final p in placeholders) {
-        expect(options.containsKey(p), isTrue,
-            reason: 'missing value for {$p}');
+        expect(
+          options.containsKey(p),
+          isTrue,
+          reason: 'missing value for {$p}',
+        );
       }
     });
   });
@@ -131,16 +139,15 @@ void main() {
       int keepBuffer = 5,
       String packageName = 'app',
       String? apiKey,
-    }) =>
-        MapTileLayer.cacheKeyFor(
-          mapType: MapTileType.google,
-          darkMode: false,
-          lang: 'el',
-          country: 'GR',
-          packageName: packageName,
-          keepBuffer: keepBuffer,
-          apiKey: apiKey,
-        );
+    }) => MapTileLayer.cacheKeyFor(
+      mapType: MapTileType.google,
+      darkMode: false,
+      lang: 'el',
+      country: 'GR',
+      packageName: packageName,
+      keepBuffer: keepBuffer,
+      apiKey: apiKey,
+    );
 
     test('the same settings share a cached widget', () {
       expect(keyFor(), keyFor());

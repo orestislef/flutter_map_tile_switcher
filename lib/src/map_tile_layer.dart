@@ -262,8 +262,7 @@ class MapTileLayer extends StatelessWidget {
 
       case MapTileType.google:
         tileLayer = TileLayer(
-          urlTemplate:
-              'https://mt{s}.google.com/vt/lyrs=m@221097000&hl={hl}&gl={gl}&x={x}&y={y}&z={z}',
+          urlTemplate: 'https://mt{s}.google.com/vt/lyrs=m@221097000&hl={hl}&gl={gl}&x={x}&y={y}&z={z}',
           subdomains: const ['0', '1', '2', '3'],
           additionalOptions: {
             'userAgent': packageName,
@@ -306,8 +305,7 @@ class MapTileLayer extends StatelessWidget {
 
       case MapTileType.satellite:
         tileLayer = TileLayer(
-          urlTemplate:
-              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           tileProvider: _tileProvider(cacheStore),
           keepBuffer: keepBuffer,
         );
