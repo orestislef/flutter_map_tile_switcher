@@ -3,7 +3,8 @@ description: Example app for flutter_map_tile_switcher
 publish_to: 'none'
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:
@@ -12,6 +13,7 @@ dependencies:
   flutter_map_tile_switcher:
     path: ../
   latlong2: ^0.10.1
+  material_ui: ^1.11.1
 
 dev_dependencies:
   flutter_test:

@@ -1,3 +1,31 @@
+## 0.1.0
+
+**Breaking for apps still on `package:flutter/material.dart`.** Flutter 3.47
+deprecated the framework's own Material library in favour of the
+[material_ui](https://pub.dev/packages/material_ui) package, and the two have
+separate `Theme` types. The package now uses material_ui, so the automatic dark
+mode reads material_ui's `Theme.of(context).brightness`. In an app that moved
+to material_ui the right tiles now come up without any bridge. In an app still
+on the old Material the layer no longer sees the app's theme and always
+picks the light tiles.
+
+* `lib/` and the example import `package:material_ui/material_ui.dart` instead
+  of `package:flutter/material.dart`, and the example runs on material_ui's
+  `MaterialApp`
+* Needs Dart 3.13 and Flutter 3.47 or newer
+* Dependencies on their latest versions
+* No other change in behaviour or API
+
+If your app is still on `package:flutter/material.dart`, either stay on 0.0.x
+or pass the brightness yourself:
+
+```dart
+MapTileLayer(
+  mapType: MapTileType.osm,
+  isDarkMode: Theme.of(context).brightness == Brightness.dark,
+)
+```
+
 ## 0.0.6
 
 * License holder name updated

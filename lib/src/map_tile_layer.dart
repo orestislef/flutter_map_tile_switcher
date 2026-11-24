@@ -1,7 +1,7 @@
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'map_tile_type.dart';
 import 'tile_cache_manager.dart';
@@ -51,7 +51,10 @@ class MapTileLayer extends StatelessWidget {
 
   /// Whether to use dark mode tiles.
   ///
-  /// If `null` (default), automatically detected from [Theme.of(context).brightness].
+  /// If `null` (default), automatically detected from
+  /// [Theme.of(context).brightness], the `Theme` of material_ui. An app still
+  /// on `package:flutter/material.dart` has a different `Theme` that is not
+  /// read here, so it should pass this itself.
   final bool? isDarkMode;
 
   /// Language code for map labels (e.g. `'en'`, `'el'`, `'de'`).
@@ -135,7 +138,7 @@ class MapTileLayer extends StatelessWidget {
       {
         'style': darkMode ? 'dark_all' : 'light_all',
         'scale': '@2x',
-        if (apiKey != null) 'apiKey': apiKey,
+        'apiKey': ?apiKey,
       },
     );
   }

@@ -58,8 +58,10 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_map_tile_switcher: ^0.0.6
+  flutter_map_tile_switcher: ^0.1.0
 ```
+
+Needs Flutter 3.47 or newer. The package is built on [material_ui](https://pub.dev/packages/material_ui), the Material library that replaced `package:flutter/material.dart`.
 
 ## Usage
 
@@ -148,7 +150,7 @@ Do not hardcode the key in source you push to a public repo. Use `--dart-define`
 
 ### Dark Mode
 
-Dark mode is **automatic**, it reads your app's `ThemeData` brightness. You can also force it:
+Dark mode is **automatic**, it reads the brightness of material_ui's `Theme` (the one `MaterialApp` from `package:material_ui/material_ui.dart` puts above your screens). You can also force it:
 
 ```dart
 // Auto-detect from theme (default)
@@ -159,6 +161,15 @@ MapTileLayer(mapType: MapTileType.google, isDarkMode: true)
 
 // Force light mode
 MapTileLayer(mapType: MapTileType.google, isDarkMode: false)
+```
+
+If your app is still on `package:flutter/material.dart`, its `Theme` is a different one that this package does not see. Pass `isDarkMode` yourself, or stay on 0.0.x until the app moves to material_ui:
+
+```dart
+MapTileLayer(
+  mapType: MapTileType.osm,
+  isDarkMode: Theme.of(context).brightness == Brightness.dark,
+)
 ```
 
 ### Custom Options
